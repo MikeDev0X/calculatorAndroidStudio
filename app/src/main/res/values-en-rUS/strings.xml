@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Calculator</string>
+    <string name="str_cero">0</string>
+    <string name="str_uno">1</string>
+    <string name="str_dos">2</string>
+    <string name="str_tres">3</string>
+    <string name="str_cuatro">4</string>
+    <string name="str_cinco">5</string>
+    <string name="str_seis">6</string>
+    <string name="str_siete">7</string>
+    <string name="str_ocho">8</string>
+    <string name="str_nueve">9</string>
+    <string name="str_plus">+</string>
+    <string name="str_minus">-</string>
+    <string name="str_mult">*</string>
+    <string name="str_div">/</string>
+    <string name="str_equals">=</string>
+
+</resources>
