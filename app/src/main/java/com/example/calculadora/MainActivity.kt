@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import java.lang.ArithmeticException
 import kotlin.math.log
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -15,8 +16,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     var decoy = 0
     var strTemp = ""
     var currOp = ""
-    var opCounter = 0
-    val undf = "undefined"
 
     lateinit var txtRes:TextView
 
@@ -60,8 +59,37 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    override fun onClick(p0: View?) {
+    fun calculate (){
+        if(currOp == "*"){
+            temp *= decoy
+            Log.w("Info",temp.toString())
 
+        }
+        else if (currOp == "/"){
+            //temp /= decoy
+
+            try {
+                temp /= decoy
+            }
+            catch (e:ArithmeticException){
+                Log.w("Info","Division by zero")
+                txtRes.setText("undefined")
+                temp = 0
+                decoy = 0
+
+            }
+            
+        }
+        else if (currOp == "+"){
+            temp += decoy
+        }
+        else if(currOp == "-"){
+            temp -= decoy
+        }
+
+    }
+
+    override fun onClick(p0: View?) {
 
         when(p0?.id){
             R.id.btnCero -> {
@@ -73,6 +101,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 if(temp!=0){
                     decoy = 0
                 }
+                else{
+                    temp = 0
+                }
+
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                }
+
             }
             R.id.btnUno -> {
                 if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
@@ -83,6 +120,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 if(temp!=0){
                     decoy = 1
                 }
+                else{
+                    temp = 1
+                }
+
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                }
+
+                Log.w("Info",temp.toString())
+
             }
             R.id.btnDos -> {
                 if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
@@ -92,6 +140,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
                 if(temp!=0){
                     decoy = 2
+                }
+                else{
+                    temp = 2
+                }
+
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
                 }
             }
             R.id.btnTres -> {
@@ -103,8 +159,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 if(temp!=0){
                     decoy = 3
                 }
+                else{
+                    temp = 3
+                }
 
-                Log.w("Info",txtRes.text.toString())
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                }
             }
             R.id.btnCuatro -> {
                 if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
@@ -115,7 +177,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 if(temp!=0){
                     decoy = 4
                 }
+                else{
+                    temp = 4
+                }
 
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                }
             }
             R.id.btnCinco -> {
                 if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
@@ -126,6 +195,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 if(temp!=0){
                     decoy = 5
                 }
+                else{
+                    temp = 5
+                }
+
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                }
             }
             R.id.btnSeis -> {
                 if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
@@ -135,6 +212,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
                 if(temp!=0){
                     decoy = 6
+                }
+                else{
+                    temp = 6
+                }
+
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                    //Log.w("Info",temp.toString())
                 }
 
             }
@@ -147,6 +233,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 if(temp!=0){
                     decoy = 7
                 }
+                else{
+                    temp = 7
+                }
+
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                }
 
             }
             R.id.btnOcho -> {
@@ -158,6 +252,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 if(temp!=0){
                     decoy = 8
                 }
+                else{
+                    temp = 8
+                }
+
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                }
             }
             R.id.btnNueve -> {
                 if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
@@ -168,75 +270,38 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 if(temp!=0){
                     decoy = 9
                 }
+                else{
+                    temp = 9
+                }
+
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                }
 
             }
             R.id.btnMult -> {
-
                 currOp = "*"
-                if(opCounter==0) {
-                    temp = Integer.parseInt(txtRes.text.toString())
-                    txtRes.text = "${txtRes.text} * "
-                }
-
-                opCounter++;
+                txtRes.text = "${txtRes.text} * "
             }
             R.id.btnDiv -> {
-
-                //temp = txtRes.text.toString().toInt()
                 currOp = "/"
-                if(opCounter==0) {
-                    temp = Integer.parseInt(txtRes.text.toString())
-                    txtRes.text = "${txtRes.text} / "
-                }
-                opCounter++;
+                txtRes.text = "${txtRes.text} / "
             }
             R.id.btnSuma -> {
                 currOp = "+"
-                if(opCounter==0) {
-                    temp = Integer.parseInt(txtRes.text.toString())
-                    txtRes.text = "${txtRes.text} + "
-                }
-                opCounter++;
+                txtRes.text = "${txtRes.text} + "
             }
             R.id.btnResta -> {
                 currOp = "-"
-                if(opCounter==0) {
-                    temp = Integer.parseInt(txtRes.text.toString())
-                    txtRes.text = "${txtRes.text} - "
-                }
-                opCounter++;
+                txtRes.text = "${txtRes.text} - "
             }
+
             R.id.btnIgual -> {
-                if(currOp == "*"){
-                    temp *= decoy
-                }
-                else if (currOp == "/"){
-                    if(decoy!=0){
-                        temp /= decoy
-                    }
-                    else if(decoy == 0){
-                        //txtRes.text = decoy.toString()
-                        txtRes.invalidate()
-                        txtRes.setText("undefined")
-
-                        Log.w("Info","division by cero")
-                        Log.w("Info",temp.toString())
-                        Log.w("Info",decoy.toString())
-
-                        //txtRes.invalidate()
-                    }
-                }
-                else if (currOp == "+"){
-                    temp += decoy
-                }
-                else if(currOp == "-"){
-                    temp -= decoy
-                }
 
                 strTemp = temp.toString()
                 //display
                 txtRes.text = strTemp
-                opCounter = 0;
             }
 
         }
