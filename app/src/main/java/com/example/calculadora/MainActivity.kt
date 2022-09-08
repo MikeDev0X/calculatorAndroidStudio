@@ -9,13 +9,24 @@ import android.widget.TextView
 import android.widget.Toast
 import java.lang.ArithmeticException
 import kotlin.math.log
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
-    var temp = 0
-    var decoy = 0
+    var temp: Double = 0.0
+    var decoy: Double = 0.0
     var strTemp = ""
     var currOp = ""
+    var canDisplay = true
+    var isUndefined = false
+    var isDoneEntering = false
+    var plurarlTriggered = false
+    var opCounter = 0
+    var activeDecimal = false
+    var decimalCounter = 1
+    var isOperator = false
+
 
     lateinit var txtRes:TextView
 
@@ -38,6 +49,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val btnDiv = findViewById<Button>(R.id.btnDiv)
         val btnSuma = findViewById<Button>(R.id.btnSuma)
         val btnResta = findViewById<Button>(R.id.btnResta)
+        val btnDecimal = findViewById<Button>(R.id.btnDecimal)
 
         txtRes = findViewById<TextView>(R.id.txtRes)
 
@@ -56,29 +68,46 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btnSuma.setOnClickListener (this)
         btnResta.setOnClickListener (this)
         btnIgual.setOnClickListener (this)
+        btnDecimal.setOnClickListener(this)
 
     }
 
     fun calculate (){
         if(currOp == "*"){
-            temp *= decoy
+            temp = ((temp *  decoy) * 100.0).roundToInt()/100.0
             Log.w("Info",temp.toString())
 
         }
         else if (currOp == "/"){
             //temp /= decoy
 
+            /*
             try {
                 temp /= decoy
-            }
-            catch (e:ArithmeticException){
-                Log.w("Info","Division by zero")
-                txtRes.setText("undefined")
-                temp = 0
-                decoy = 0
+                Log.w("values","Trying division")
 
             }
-            
+            catch (e:ArithmeticException){
+                Log.w("values","Division by zero")
+                txtRes.text="undefined"
+                isUndefined = true
+                temp = 0.0
+                decoy = 0.0
+
+            }*/
+
+            if(temp/decoy == Double.POSITIVE_INFINITY){
+                Log.w("values","Division by zero")
+                txtRes.text="undefined"
+                isUndefined = true
+                temp = 0.0
+                decoy = 0.0
+            }
+            else{
+                temp = ((temp /  decoy) * 100.0).roundToInt()/100.0
+                Log.w("values","Trying division")
+            }
+
         }
         else if (currOp == "+"){
             temp += decoy
@@ -89,221 +118,204 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
+    fun writeScreen (num:String){
+
+        if (!isUndefined){
+            if(num.toInt()==0) {
+                if((txtRes.text.toString() != "0")){
+                    if(currOp != "" || !isDoneEntering)
+                        txtRes.text = txtRes.text.toString() + num
+                    else{
+                        txtRes.text = num
+                        temp = 0.0
+                        decoy = 0.0
+                        isDoneEntering = false
+                        decimalCounter = 1
+                        activeDecimal = false
+                    }
+                }
+
+            }
+            else{
+                // change the value of the text at the very beginning
+                if((txtRes.text.toString() == "0" || txtRes.text.toString() == "0.0"))
+                    txtRes.text = num
+                else
+                //txtRes.text = "${txtRes.text}num"
+                    if(currOp != "" || !isDoneEntering)
+                        txtRes.text = txtRes.text.toString() + num
+                    else{
+                        txtRes.text = num
+                        temp = 0.0
+                        decoy = 0.0
+                        isDoneEntering = false
+                    }
+            }
+        }
+        else{txtRes.text = num; isUndefined = false; decoy = 0.0;}
+
+        if(isDoneEntering){
+            //decoy = num.toInt()
+
+
+            if(decoy!=0.0 && !activeDecimal)
+                decoy = (decoy.toInt().toString()+num).toDouble()
+            else if (!activeDecimal){
+                decoy = num.toDouble()
+            }
+            else if(activeDecimal){
+                decoy += num.toDouble()/((10.0).pow(decimalCounter))
+                Log.w("values",decoy.toString())
+                Log.w("values","decoy num to double: " + num.toDouble())
+                Log.w("values","(decoy num.toDouble()/((10.0).pow():  " + (num.toDouble()/((10.0).pow(decimalCounter))))
+                decimalCounter ++
+            }
+            Log.w("values",decoy.toString())
+
+
+        }
+
+        else if(!isDoneEntering){ //first time
+
+            if(temp!=0.0 && !activeDecimal) {
+                temp = (temp.toInt().toString() + num).toDouble()
+                Log.w("values", "num: " + temp.toString()+num)
+            }
+
+            else if (!activeDecimal){
+                temp = num.toDouble()
+            }
+            else if(activeDecimal){
+                temp += (num.toDouble()/((10.0).pow(decimalCounter)))
+                Log.w("values","num to double: " + num.toDouble())
+                Log.w("values","(num.toDouble()/((10.0):  " + (num.toDouble()/((10.0))))
+
+
+                decimalCounter ++
+            }
+            Log.w("values",temp.toString())
+
+
+        }
+    }
     override fun onClick(p0: View?) {
 
         when(p0?.id){
-            R.id.btnCero -> {
-                if(txtRes.text.toString().length!=1 && temp!=0) {
-                    if (txtRes.text.toString() != "0")
-                        txtRes.text = "${txtRes.text}0"
-                }
-
-                if(temp!=0){
-                    decoy = 0
-                }
-                else{
-                    temp = 0
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
+            R.id.btnDecimal ->{
+                if(!activeDecimal){
+                    activeDecimal = true
+                    txtRes.text = "${txtRes.text} . "
                 }
 
             }
+            R.id.btnCero -> {
+
+                writeScreen("0")
+
+                if(!canDisplay && !isUndefined){
+                    temp = 0.0
+                    decoy = 0.0
+                    txtRes.text = 0.toString()
+                }
+            }
+
             R.id.btnUno -> {
-                if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
-                    txtRes.text = "1"
-                else
-                    txtRes.text = "${txtRes.text}1"
-
-                if(temp!=0){
-                    decoy = 1
-                }
-                else{
-                    temp = 1
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
-                }
-
-                Log.w("Info",temp.toString())
-
+                writeScreen("1")
             }
             R.id.btnDos -> {
-                if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
-                    txtRes.text = "2"
-                else
-                    txtRes.text = "${txtRes.text}2"
-
-                if(temp!=0){
-                    decoy = 2
-                }
-                else{
-                    temp = 2
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
-                }
+                writeScreen("2")
             }
             R.id.btnTres -> {
-                if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
-                    txtRes.text = "3"
-                else
-                    txtRes.text = "${txtRes.text}3"
-
-                if(temp!=0){
-                    decoy = 3
-                }
-                else{
-                    temp = 3
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
-                }
+                writeScreen("3")
             }
             R.id.btnCuatro -> {
-                if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
-                txtRes.text = "4"
-            else
-                txtRes.text = "${txtRes.text}4"
-
-                if(temp!=0){
-                    decoy = 4
-                }
-                else{
-                    temp = 4
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
-                }
+                writeScreen("4")
             }
             R.id.btnCinco -> {
-                if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
-                    txtRes.text = "5"
-                else
-                    txtRes.text = "${txtRes.text}5"
-
-                if(temp!=0){
-                    decoy = 5
-                }
-                else{
-                    temp = 5
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
-                }
+                writeScreen("5")
             }
             R.id.btnSeis -> {
-                if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
-                    txtRes.text = "6"
-                else
-                    txtRes.text = "${txtRes.text}6"
-
-                if(temp!=0){
-                    decoy = 6
-                }
-                else{
-                    temp = 6
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
-                    //Log.w("Info",temp.toString())
-                }
-
+                writeScreen("6")
             }
             R.id.btnSiete -> {
-                if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
-                    txtRes.text = "7"
-                else
-                    txtRes.text = "${txtRes.text}7"
-
-                if(temp!=0){
-                    decoy = 7
-                }
-                else{
-                    temp = 7
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
-                }
-
+                writeScreen("7")
             }
             R.id.btnOcho -> {
-                if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
-                    txtRes.text = "8"
-                else
-                    txtRes.text = "${txtRes.text}8"
-
-                if(temp!=0){
-                    decoy = 8
-                }
-                else{
-                    temp = 8
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
-                }
+                writeScreen("8")
             }
             R.id.btnNueve -> {
-                if(txtRes.text.toString() == "0" && txtRes.text.toString().length == 1)
-                    txtRes.text = "9"
-                else
-                    txtRes.text = "${txtRes.text}9"
-
-                if(temp!=0){
-                    decoy = 9
-                }
-                else{
-                    temp = 9
-                }
-
-                if(currOp != ""){
-                    calculate()
-                    currOp = ""
-                }
-
+                writeScreen("9")
             }
             R.id.btnMult -> {
-                currOp = "*"
-                txtRes.text = "${txtRes.text} * "
+                if(currOp == ""){
+                    currOp = "*"
+                    txtRes.text = "${txtRes.text} * "
+                    isDoneEntering = true
+                }
+
+                if(decoy!=0.0){ plurarlTriggered = true }
+                activeDecimal = false
+                decimalCounter = 1
+
             }
             R.id.btnDiv -> {
-                currOp = "/"
-                txtRes.text = "${txtRes.text} / "
+                if(currOp == ""){
+                    currOp = "/"
+                    txtRes.text = "${txtRes.text} / "
+                    isDoneEntering = true
+                }
+
+                if(decoy!=0.0){ plurarlTriggered = true }
+                activeDecimal = false
+                decimalCounter = 1
             }
             R.id.btnSuma -> {
-                currOp = "+"
-                txtRes.text = "${txtRes.text} + "
+                if(currOp == ""){
+                    currOp = "+"
+                    txtRes.text = "${txtRes.text} + "
+                    isDoneEntering = true
+                }
+
+                if(decoy!=0.0){ plurarlTriggered = true }
+                activeDecimal = false
+                decimalCounter = 1
             }
             R.id.btnResta -> {
-                currOp = "-"
-                txtRes.text = "${txtRes.text} - "
+                if(currOp == ""){
+                    currOp = "-"
+                    txtRes.text = "${txtRes.text} - "
+                    isDoneEntering = true
+                }
+
+                if(decoy!=0.0){ plurarlTriggered = true }
+                activeDecimal = false
+                decimalCounter = 1
             }
 
             R.id.btnIgual -> {
 
-                strTemp = temp.toString()
-                //display
-                txtRes.text = strTemp
-            }
+                if(decoy!=0.0){ plurarlTriggered = true }
 
+                if(currOp != ""){
+                    calculate()
+                    currOp = ""
+                }
+
+                decimalCounter = 1
+
+                if(isUndefined){
+                    //txtRes.text="undefined"
+                    temp = 0.0
+                    isDoneEntering = false //restarts
+                }
+                else{
+                    strTemp = temp.toString()
+                    txtRes.text = strTemp
+                }
+
+                decoy = 0.0
+
+            }
         }
     }
 }

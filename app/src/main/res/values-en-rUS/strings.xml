@@ -17,5 +17,7 @@
     <string name="str_mult">*</string>
     <string name="str_div">/</string>
     <string name="str_equals">=</string>
+    <string name="decimal">.</string>
+
 
 </resources>
